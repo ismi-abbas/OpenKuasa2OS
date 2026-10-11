@@ -1,0 +1,15 @@
+{
+  "name": "openkuasa-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Create with: wrangler hyperdrive create openkuasa --connection-string="postgres://..."
+  // Any Postgres works (Supabase DB / Neon / PlanetScale / self-hosted).
+  // One Worker: API under /api/*, the Vite build (apps/web/dist) as static assets with SPA fallback.
+  "assets": { "directory": "../web/dist", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*"] },
+  "triggers": { "crons": ["0 * * * *"] },
+  "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_HYPERDRIVE_ID", "localConnectionString": "postgres://postgres:postgres@127.0.0.1:54320/openkuasa" }],
+  // Profile photos (wrangler r2 bucket create openkuasa-avatars)
+  "r2_buckets": [{ "binding": "AVATARS", "bucket_name": "openkuasa-avatars" }]
+  // Secrets: wrangler secret put BETTER_AUTH_SECRET ; set BETTER_AUTH_URL + WEB_ORIGIN in [vars]
+}

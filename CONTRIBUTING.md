@@ -135,13 +135,13 @@ issue gets one type label and, where it applies, an area label.
 | `question` | A question, not a request for a change. |
 | `good first issue` | Small and well described; a good place to start. |
 | `help wanted` | The maintainers would welcome someone taking this on. |
-| `area: tuah` | Tuah, the command centre. |
-| `area: jebat` | Jebat, leads and ads. |
-| `area: kasturi` | Kasturi, the CRM. |
-| `area: lekiu` | Lekiu, people and payroll. |
-| `area: lekir` | Lekir, hiring. |
-| `area: bendahara` | Bendahara, accounting and e-Invois. |
-| `area: taming sari` | Taming Sari, the AI assistant. |
+| `area: command` | Kokotiam, the command centre. |
+| `area: ads` | Api, leads and ads. |
+| `area: crm` | Air, the CRM. |
+| `area: people` | Daun, people and payroll. |
+| `area: hire` | Taufan, hiring. |
+| `area: finance` | Gempa, accounting and e-Invois. |
+| `area: assistant` | Ochobot, the AI assistant. |
 | `area: landing` | The landing, pricing and other public pages. |
 | `area: platform` | Sign-in, accounts, the database and deployment. |
 | `needs triage` | New; a maintainer has not looked at it yet. |
@@ -157,23 +157,20 @@ issue gets one type label and, where it applies, an area label.
 
    ```bash
    pnpm install
-   pnpm dev
+   pnpm dev:web   # and, in another terminal: pnpm dev:api
    ```
 
-   The [README](README.md) explains the environment variables and the Supabase
-   settings needed for sign-in and the database.
+   The [README](README.md) explains the Postgres database, migrations and the
+   Worker settings needed for sign-in.
 3. Create a branch from an up-to-date `main` (see below for the name).
 4. Make your change in small, focused commits.
 5. Run the checks:
 
    ```bash
-   pnpm lint
+   pnpm typecheck
    pnpm test
    pnpm build
    ```
-
-   Some tests talk to a real Supabase project. If you have not set one up, say
-   in your pull request which tests you could not run.
 6. Push to your fork and open a pull request against `main`.
 
 Always use pnpm, not npm or yarn.

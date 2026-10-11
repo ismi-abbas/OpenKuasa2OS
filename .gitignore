@@ -53,3 +53,10 @@ next-env.d.ts
 # superpowers SDD workspace + local MCP scratch (not shipped)
 .superpowers/
 .playwright-mcp/
+.dev.vars
+
+# workspaces
+node_modules
+dist
+.wrangler
+.dev.vars

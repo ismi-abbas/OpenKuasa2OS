@@ -1,0 +1,18 @@
+# Local dev database: `docker compose up -d db`. Host port 54320 avoids clashing with a local Postgres on 5432.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: openkuasa
+    ports:
+      - "54320:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d openkuasa"]
+      interval: 2s
+      retries: 30
+volumes:
+  pgdata:

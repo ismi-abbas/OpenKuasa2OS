@@ -1,0 +1,633 @@
+
+import { useState } from 'react';
+import {
+  BarChart3,
+  CalendarClock,
+  ChevronDown,
+  Columns3,
+  Filter,
+  PieChart,
+  Plus,
+  Tag,
+  Target,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+import { ScreenContainer } from '@/components/screen/screen-container';
+import { PageHeader } from '@/components/screen/page-header';
+import { BentoGrid, BentoCard, BentoStat } from '@/components/bento/bento';
+import {
+  AreaTrend,
+  BarGroup,
+  DonutStat,
+  RadialGauge,
+  Sparkline,
+  type Series,
+  type Slice,
+} from '@/components/charts';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { cn } from '@/lib/utils';
+
+/** A row of GET /api/crm/contacts. */
+export type CrmContact = {
+  id: string;
+  email: string;
+  company: string;
+  first: string;
+  last: string;
+  phone: string;
+  country: string;
+  status: string | null;
+  score: number;
+  pic: string | null;
+  lastInteraction: string | null;
+};
+
+/* ---- mock data (Rimba Ventures Sdn Bhd) --------------------------- */
+
+type Contact = CrmContact;
+
+/** Total contacts in the book; the table below shows a recent sample. */
+const TOTAL_CONTACTS = 1284;
+
+const CONTACTS: Contact[] = [
+  {
+    id: '1',
+    email: 'aisyah.rahim@rimbaventures.com',
+    company: 'Rimba Ventures Sdn Bhd',
+    first: 'Aisyah',
+    last: 'Rahim',
+    phone: '+60123456789',
+    country: 'MY',
+    status: 'Qualified',
+    score: 92,
+    pic: 'Faiz',
+    lastInteraction: '2h ago',
+  },
+  {
+    id: '2',
+    email: 'faiz.hakim@gmail.com',
+    company: 'Personal',
+    first: 'Faiz',
+    last: 'Hakim',
+    phone: '+60123456782',
+    country: 'MY',
+    status: 'Contacted',
+    score: 78,
+    pic: 'Aisyah',
+    lastInteraction: 'Yesterday',
+  },
+  {
+    id: '3',
+    email: 'nurul.huda@mesramart.my',
+    company: 'Mesra Mart Enterprise',
+    first: 'Nurul',
+    last: 'Huda',
+    phone: '+60123456783',
+    country: 'MY',
+    status: 'New Leads',
+    score: 64,
+    pic: 'Aisyah',
+    lastInteraction: '3 days ago',
+  },
+  {
+    id: '4',
+    email: 'ahmad.zaki@tanibumi.my',
+    company: 'Tani Bumi Sdn Bhd',
+    first: 'Ahmad',
+    last: 'Zaki',
+    phone: '+60123456781',
+    country: 'MY',
+    status: 'Qualified',
+    score: 85,
+    pic: 'Faiz',
+    lastInteraction: '5h ago',
+  },
+  {
+    id: '5',
+    email: 'sarah.tan@worksphere.my',
+    company: 'WorkSphere',
+    first: 'Sarah',
+    last: 'Tan',
+    phone: '+60123456784',
+    country: 'MY',
+    status: 'Contacted',
+    score: 45,
+    pic: 'Nurul',
+    lastInteraction: '1 week ago',
+  },
+  {
+    id: '6',
+    email: 'wan.azlan@gmail.com',
+    company: 'Personal',
+    first: 'Wan',
+    last: 'Azlan',
+    phone: '+60123456785',
+    country: 'MY',
+    status: 'New Leads',
+    score: 33,
+    pic: 'Nurul',
+    lastInteraction: 'Yesterday',
+  },
+  {
+    id: '7',
+    email: 'weijie.lim@kedairuncit.my',
+    company: 'Kedai Runcit Online',
+    first: 'Lim',
+    last: 'Wei Jie',
+    phone: '+60123456786',
+    country: 'MY',
+    status: 'Customer',
+    score: 58,
+    pic: 'Zaki',
+    lastInteraction: '2 weeks ago',
+  },
+  {
+    id: '8',
+    email: 'siti.khadijah@outlook.com',
+    company: 'Personal',
+    first: 'Siti',
+    last: 'Khadijah',
+    phone: '+60123456787',
+    country: 'MY',
+    status: null,
+    score: 18,
+    pic: null,
+    lastInteraction: null,
+  },
+];
+
+/* KPI sparkline trends ------------------------------------------------ */
+const SPARK_TOTAL = [1060, 1104, 1138, 1172, 1201, 1238, 1262, 1284];
+const SPARK_NEW = [52, 61, 58, 73, 69, 81, 78, 86];
+const SPARK_QUALIFIED = [318, 332, 347, 358, 371, 384, 393, 402];
+const SPARK_SCORE = [61, 63, 62, 65, 66, 67, 67, 68];
+
+/* Contacts added over time (last 8 weeks) ----------------------------- */
+const ADDED_TREND = [
+  { label: 'Wk1', added: 52, qualified: 22 },
+  { label: 'Wk2', added: 61, qualified: 28 },
+  { label: 'Wk3', added: 58, qualified: 26 },
+  { label: 'Wk4', added: 73, qualified: 33 },
+  { label: 'Wk5', added: 69, qualified: 31 },
+  { label: 'Wk6', added: 81, qualified: 36 },
+  { label: 'Wk7', added: 78, qualified: 34 },
+  { label: 'Wk8', added: 86, qualified: 38 },
+];
+const ADDED_SERIES: Series[] = [
+  { key: 'added', label: 'Added', color: 'var(--chart-1)' },
+  { key: 'qualified', label: 'Qualified', color: 'var(--chart-2)' },
+];
+
+/* Lead score distribution — matches the LeadScore badge thresholds ---- */
+const SCORE_MIX: Slice[] = [
+  { key: 'hot', label: 'Hot (75+)', value: 386, color: 'var(--chart-1)' },
+  { key: 'warm', label: 'Warm (40–74)', value: 592, color: 'var(--chart-3)' },
+  { key: 'cold', label: 'Cold (<40)', value: 306, color: 'var(--chart-4)' },
+];
+
+/* Pipeline by status -------------------------------------------------- */
+const STATUS_MIX = [
+  { label: 'New', count: 431 },
+  { label: 'Contacted', count: 358 },
+  { label: 'Qualified', count: 402 },
+  { label: 'Customer', count: 93 },
+];
+const STATUS_SERIES: Series[] = [
+  { key: 'count', label: 'Contacts', color: 'var(--chart-2)' },
+];
+
+/* ------------------------------------------------------------------ */
+
+function LeadScore({ value }: { value: number }) {
+  const tone =
+    value >= 75
+      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+      : value >= 40
+        ? 'border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400'
+        : 'border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400';
+  return (
+    <span
+      className={cn(
+        'grid size-7 shrink-0 place-items-center rounded-full border text-xs font-bold',
+        tone,
+      )}
+      title={`Lead score ${value}`}
+    >
+      {value}
+    </span>
+  );
+}
+
+function StatusPill({ status }: { status: string | null }) {
+  if (!status)
+    return <span className="text-sm text-muted-foreground">—</span>;
+  return (
+    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+      {status}
+    </span>
+  );
+}
+
+type ContactsScreenProps = {
+  /** Live contacts. Omitted on Api and when no database is configured. */
+  contacts?: Contact[];
+  totalContacts?: number;
+  /** Present only when the signed-in person may add contacts. Throws with a message to show. */
+  onCreateContact?: (values: Record<string, string>) => Promise<void>;
+};
+
+function AddContactCard({ onCreate }: { onCreate: (values: Record<string, string>) => Promise<void> }) {
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const v: Record<string, string | undefined> = {};
+
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    setPending(true);
+    setError(null);
+    try {
+      await onCreate(Object.fromEntries(new FormData(form)) as Record<string, string>);
+      form.reset();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save the contact. Please try again.');
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <BentoCard
+      title="Add contact"
+      subtitle="Create a Air contact for this workspace"
+      icon={Plus}
+      className="col-span-2 md:col-span-12"
+    >
+      <form onSubmit={submit} className="grid gap-3 md:grid-cols-12">
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="firstName">First name</Label>
+          <Input
+            id="firstName"
+            name="firstName"
+            placeholder="Aisyah"
+            defaultValue={v.firstName}
+            required
+          />
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="lastName">Last name</Label>
+          <Input id="lastName" name="lastName" placeholder="Rahim" defaultValue={v.lastName} />
+        </div>
+        <div className="space-y-1.5 md:col-span-3">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="aisyah@example.com"
+            defaultValue={v.email}
+            required
+          />
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="phone">Phone</Label>
+          <Input id="phone" name="phone" placeholder="+60123456789" defaultValue={v.phone} />
+        </div>
+        <div className="space-y-1.5 md:col-span-3">
+          <Label htmlFor="company">Company</Label>
+          <Input
+            id="company"
+            name="company"
+            placeholder="Rimba Ventures"
+            defaultValue={v.company}
+          />
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="country">Country code</Label>
+          <Input
+            id="country"
+            name="country"
+            defaultValue={v.country ?? 'MY'}
+            maxLength={2}
+            pattern="[A-Za-z]{2}"
+            title="Two-letter country code, such as MY"
+            className="uppercase"
+          />
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="status">Status</Label>
+          <select
+            id="status"
+            name="status"
+            defaultValue={v.status ?? 'lead'}
+            className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
+            <option value="lead">New lead</option>
+            <option value="contacted">Contacted</option>
+            <option value="qualified">Qualified</option>
+            <option value="customer">Customer</option>
+          </select>
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="leadScore">Lead score</Label>
+          <Input
+            id="leadScore"
+            name="leadScore"
+            type="number"
+            min="0"
+            max="100"
+            defaultValue={v.leadScore ?? '0'}
+          />
+        </div>
+        <div className="flex items-end gap-3 md:col-span-6">
+          <Button type="submit" className="w-full md:w-auto" disabled={pending}>
+            <Plus className="size-4" />
+            {pending ? 'Saving…' : 'Save contact'}
+          </Button>
+          {error ? (
+            <p role="alert" className="pb-2 text-sm text-destructive">
+              {error}
+            </p>
+          ) : null}
+        </div>
+      </form>
+    </BentoCard>
+  );
+}
+
+export default function ContactsScreen({
+  contacts,
+  totalContacts,
+  onCreateContact,
+}: ContactsScreenProps = {}) {
+  // With live contacts, only what is backed by real data is shown: the total
+  // and the table. The trend, score and pipeline cards are sample figures and
+  // stay hidden until they have a live source.
+  const live = contacts !== undefined;
+  const rows = contacts ?? CONTACTS;
+  const total = totalContacts ?? TOTAL_CONTACTS;
+  const [selected, setSelected] = useState<string[]>([]);
+  const allChecked = selected.length === rows.length && rows.length > 0;
+
+  const toggleAll = () =>
+    setSelected(allChecked ? [] : rows.map((c) => c.id));
+  const toggle = (id: string) =>
+    setSelected((s) =>
+      s.includes(id) ? s.filter((x) => x !== id) : [...s, id],
+    );
+
+  return (
+    <ScreenContainer>
+      <PageHeader
+        className="mb-3"
+        title="Contacts"
+        subtitle="All your leads and customers in one place, Saudara."
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              <Columns3 className="size-4" />
+              Columns
+            </Button>
+            <Button size="sm">
+              <Plus className="size-4" />
+              Add Contact
+            </Button>
+          </>
+        }
+      />
+
+      <BentoGrid>
+        {onCreateContact ? <AddContactCard onCreate={onCreateContact} /> : null}
+
+        {/* KPI row */}
+        <BentoCard tone="primary" className="col-span-1 md:col-span-3">
+          <BentoStat
+            label="Total contacts"
+            value={total.toLocaleString()}
+            delta={live ? undefined : '+4.2%'}
+            onPrimary
+            chart={
+              live ? undefined : (
+                <Sparkline
+                  data={SPARK_TOTAL}
+                  color="var(--primary-foreground)"
+                  height={36}
+                />
+              )
+            }
+          />
+        </BentoCard>
+        {!live && (
+          <>
+            <BentoCard className="col-span-1 md:col-span-3">
+              <BentoStat
+                label="New this week"
+                value="86"
+                delta="+18"
+                deltaTone="up"
+                chart={<Sparkline data={SPARK_NEW} color="var(--chart-2)" height={36} />}
+              />
+            </BentoCard>
+            <BentoCard className="col-span-1 md:col-span-3">
+              <BentoStat
+                label="Qualified"
+                value="402"
+                delta="+6%"
+                deltaTone="up"
+                chart={<Sparkline data={SPARK_QUALIFIED} color="var(--chart-1)" height={36} />}
+              />
+            </BentoCard>
+            <BentoCard className="col-span-1 md:col-span-3">
+              <BentoStat
+                label="Avg lead score"
+                value="68"
+                delta="+2"
+                deltaTone="up"
+                chart={<Sparkline data={SPARK_SCORE} color="var(--chart-3)" height={36} />}
+              />
+            </BentoCard>
+
+            {/* Trend + score distribution */}
+            <BentoCard
+              title="Contacts added over time"
+              subtitle="Last 8 weeks"
+              icon={TrendingUp}
+              className="col-span-2 md:col-span-8"
+            >
+              <AreaTrend data={ADDED_TREND} series={ADDED_SERIES} height={240} showLegend />
+            </BentoCard>
+            <BentoCard
+              title="Lead score distribution"
+              subtitle="Hot · Warm · Cold"
+              icon={PieChart}
+              className="col-span-2 md:col-span-4"
+            >
+              <DonutStat
+                data={SCORE_MIX}
+                height={240}
+                centerValue={total.toLocaleString()}
+                centerLabel="contacts"
+              />
+            </BentoCard>
+          </>
+        )}
+
+        {/* Contacts table */}
+        <BentoCard
+          title="All contacts"
+          subtitle="Most recent first"
+          icon={Users}
+          flush
+          className="col-span-2 md:col-span-12"
+        >
+          <div className="flex flex-wrap items-center gap-2 px-4">
+            <Button variant="outline" size="sm">
+              <Filter className="size-4" />
+              Filter
+            </Button>
+            <Button variant="outline" size="sm">
+              All Contacts
+              <ChevronDown className="size-4" />
+            </Button>
+            <Button variant="outline" size="sm">
+              <Tag className="size-4" />
+              Tags
+            </Button>
+            <Button variant="outline" size="sm">
+              <CalendarClock className="size-4" />
+              Follow-up
+            </Button>
+          </div>
+          <div className="mt-3 overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/40">
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={allChecked}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all"
+                    />
+                  </TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>First name</TableHead>
+                  <TableHead>Last name</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Country</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>PIC</TableHead>
+                  <TableHead>Last interaction</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((c) => (
+                  <TableRow
+                    key={c.id}
+                    data-state={selected.includes(c.id) ? 'selected' : undefined}
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.includes(c.id)}
+                        onCheckedChange={() => toggle(c.id)}
+                        aria-label={`Select ${c.email}`}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <LeadScore value={c.score} />
+                        <div className="min-w-0">
+                          <p className="truncate font-medium">{c.email}</p>
+                          <button
+                            type="button"
+                            className="text-xs font-medium uppercase tracking-wide text-primary hover:underline"
+                          >
+                            + Add follow-up
+                          </button>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{c.first}</TableCell>
+                    <TableCell className="whitespace-nowrap">{c.last}</TableCell>
+                    <TableCell className="whitespace-nowrap tabular-nums">
+                      {c.phone}
+                    </TableCell>
+                    <TableCell>{c.country}</TableCell>
+                    <TableCell>
+                      <StatusPill status={c.status} />
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {c.pic ?? '—'}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {c.lastInteraction ?? '—'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
+                      No contacts yet.
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-between border-t px-4 py-3 text-sm text-muted-foreground">
+            <span>
+              Showing {rows.length} of {total.toLocaleString()} contacts
+            </span>
+            {selected.length > 0 ? (
+              <span>{selected.length} selected</span>
+            ) : null}
+          </div>
+        </BentoCard>
+
+        {/* Pipeline breakdown + qualification rate */}
+        {!live && (
+          <>
+            <BentoCard
+              title="Pipeline by status"
+              subtitle="Across all contacts"
+              icon={BarChart3}
+              className="col-span-2 md:col-span-8"
+            >
+              <BarGroup
+                data={STATUS_MIX}
+                series={STATUS_SERIES}
+                horizontal
+                height={200}
+              />
+            </BentoCard>
+            <BentoCard
+              title="Qualification rate"
+              subtitle="Qualified ÷ total"
+              icon={Target}
+              className="col-span-2 md:col-span-4"
+            >
+              <RadialGauge
+                value={31}
+                label="qualified"
+                valueLabel="31%"
+                color="var(--chart-1)"
+                height={200}
+              />
+            </BentoCard>
+          </>
+        )}
+      </BentoGrid>
+    </ScreenContainer>
+  );
+}

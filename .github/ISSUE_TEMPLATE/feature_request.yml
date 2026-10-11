@@ -31,13 +31,13 @@ body:
       label: Area
       description: Which part of OpenKuasa OS is this for?
       options:
-        - Tuah (command centre)
-        - Jebat (reach and marketing)
-        - Kasturi (CRM)
-        - Lekiu (people)
-        - Lekir (hiring)
-        - Bendahara (finance)
-        - Taming Sari (AI assistant)
+        - Kokotiam (command centre)
+        - Api (reach and marketing)
+        - Air (CRM)
+        - Daun (people)
+        - Taufan (hiring)
+        - Gempa (finance)
+        - Ochobot (AI assistant)
         - Landing and marketing pages
         - Platform (sign-in, accounts, database, deployment)
         - Not sure

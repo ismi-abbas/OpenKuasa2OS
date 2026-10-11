@@ -3,7 +3,7 @@
 **The open-source business OS for Malaysian SMEs — one self-hostable app
 instead of a stack of separate CRM, HR, payroll and accounting subscriptions.**
 Ads, CRM, HR, recruitment and accounting in one place, with an AI command center
-on top — built in the open on Next.js, React and Supabase.
+on top — built in the open on React (Vite), Hono, Cloudflare Workers and Postgres.
 
 OpenKuasa is crowd-sourced: it is developed in the open by its maintainers and
 volunteer contributors.
@@ -13,7 +13,7 @@ would rather not run it themselves. It is built on the code in this repository,
 which stays open source under AGPL-3.0.
 
 <p align="center">
-  <img src="docs/screenshots/dashboard.png" alt="OpenKuasa OS — the Jebat (Ads) module overview; every module has a dashboard like this" width="900">
+  <img src="docs/screenshots/dashboard.png" alt="OpenKuasa OS — the Api (Ads) module overview; every module has a dashboard like this" width="900">
 </p>
 
 > [!IMPORTANT]
@@ -23,6 +23,8 @@ which stays open source under AGPL-3.0.
 >
 > - Everything in this repository was written from scratch by the community. It
 >   contains no third-party source code, proprietary assets or customer data.
+> - Product names are inspired by elemental themes. The project is not affiliated
+>   with any animation studio or franchise.
 > - Any third-party product or company names that come up belong to their
 >   respective owners, and are used only to describe the kind of software this is
 >   an alternative to.
@@ -31,36 +33,37 @@ which stays open source under AGPL-3.0.
 
 ## What's inside
 
-Six modules and a cross-app assistant, named after the Malay warriors and court
-of Melaka. **83 module screens** are built so far.
+Six products named after elemental powers (fire, water, leaf, wind, earth, plus
+the command hub that ties them together), and Ochobot, the helper that rides
+along on every screen. **83 module screens** are built so far.
 
 | Module | What it does | Alternative to | Route | Screens |
 | --- | --- | --- | --- | --- |
-| **Tuah** | AI command center — chat with your whole business | AI business copilots | `/command` | chat |
-| **Jebat** | Ads — ad studio, creative bank, lead forms, reports | ad platforms & agencies | `/reach` | 10 |
-| **Kasturi** | CRM — contacts, deals kanban, broadcast, chatbot, automations | CRM tools | `/crm` | 11 |
-| **Lekiu** | Team — employees, attendance, leave, claims, payroll, performance | HR & payroll suites | `/people` | 27 |
-| **Lekir** | Recruit — jobs, candidates, applications, interviews, talent pool | recruiting (ATS) | `/hire` | 9 |
-| **Bendahara** | Finance — invoicing, expenses, banking, e-Invoice, SST, ledgers | accounting software | `/finance` | 26 |
-| **Taming Sari** | "Sari", the assistant available from every screen | — | everywhere | — |
+| **Kokotiam** | AI command center — chat with your whole business | AI business copilots | `/command` | chat |
+| **Api** | Ads — ad studio, creative bank, lead forms, reports | ad platforms & agencies | `/reach` | 10 |
+| **Air** | CRM — contacts, deals kanban, broadcast, chatbot, automations | CRM tools | `/crm` | 11 |
+| **Daun** | Team — employees, attendance, leave, claims, payroll, performance | HR & payroll suites | `/people` | 27 |
+| **Taufan** | Recruit — jobs, candidates, applications, interviews, talent pool | recruiting (ATS) | `/hire` | 9 |
+| **Gempa** | Finance — invoicing, expenses, banking, e-Invoice, SST, ledgers | accounting software | `/finance` | 26 |
+| **Ochobot** | The helper available from every screen | — | everywhere | — |
 
-The full menu for each module lives in `src/config/nav.ts`.
+The full menu for each module lives in `apps/web/src/features/app/nav.ts`.
 
 ### Module highlights
 
-- **Tuah** — a command chat with rich reply cards, plus an Ask Sari
+- **Kokotiam** — a command chat with rich reply cards, plus an Ask Ochobot
   conversation view.
-- **Jebat** — overview dashboard, AI agents, Ad Studio, Creative Bank, reports,
+- **Api** — overview dashboard, AI agents, Ad Studio, Creative Bank, reports,
   contacts, lead forms, appointments, ad settings and an account health check.
-- **Kasturi** — CMO assistant, deals pipeline as a kanban board, broadcasts, AI
+- **Air** — CMO assistant, deals pipeline as a kanban board, broadcasts, AI
   chatbot, automations, landing pages, calendar, billings, plugins and reports.
-- **Lekiu** — employee self-service (attendance, goals, documents), leave /
+- **Daun** — employee self-service (attendance, goals, documents), leave /
   time-off / claims / overtime applications with a matching approvals queue,
   timesheets, shift calendar, payroll, payment vouchers, scorecards and
   training.
-- **Lekir** — recruiter assistant, hiring dashboard, jobs, candidates kanban,
+- **Taufan** — recruiter assistant, hiring dashboard, jobs, candidates kanban,
   applications, interviews, talent pool and a careers page builder.
-- **Bendahara** — cash book, quotations, invoices, credit notes, refunds,
+- **Gempa** — cash book, quotations, invoices, credit notes, refunds,
   supplier bills, receipts inbox, banking, e-Invoice LHDN, SST report, audit
   trail, journals, chart of accounts, contra entries and FX revaluation.
 
@@ -82,10 +85,10 @@ A look at the running app (sample data):
 
 | | |
 | :---: | :---: |
-| <img src="docs/screenshots/tuah.png" alt="Tuah — AI command center"><br>**Tuah** · AI command center | <img src="docs/screenshots/jebat-ad-studio.png" alt="Jebat — AI Ad Studio"><br>**Jebat** · AI Ad Studio |
-| <img src="docs/screenshots/kasturi-deals.png" alt="Kasturi — deals pipeline"><br>**Kasturi** · deals pipeline | <img src="docs/screenshots/lekiu-payroll.png" alt="Lekiu — payroll"><br>**Lekiu** · payroll |
-| <img src="docs/screenshots/lekir-candidates.png" alt="Lekir — candidate pipeline"><br>**Lekir** · candidate pipeline | <img src="docs/screenshots/bendahara-invoices.png" alt="Bendahara — invoicing"><br>**Bendahara** · invoicing |
-| <img src="docs/screenshots/sari.png" alt="Taming Sari — the assistant, available from every screen"><br>**Taming Sari** · ask Sari from any screen | <img src="docs/screenshots/onboarding.png" alt="Multi-step onboarding"><br>**Onboarding** · multi-step setup |
+| <img src="docs/screenshots/command.png" alt="Kokotiam — AI command center"><br>**Kokotiam** · AI command center | <img src="docs/screenshots/ads-ad-studio.png" alt="Api — AI Ad Studio"><br>**Api** · AI Ad Studio |
+| <img src="docs/screenshots/crm-deals.png" alt="Air — deals pipeline"><br>**Air** · deals pipeline | <img src="docs/screenshots/people-payroll.png" alt="Daun — payroll"><br>**Daun** · payroll |
+| <img src="docs/screenshots/hire-candidates.png" alt="Taufan — candidate pipeline"><br>**Taufan** · candidate pipeline | <img src="docs/screenshots/finance-invoices.png" alt="Gempa — invoicing"><br>**Gempa** · invoicing |
+| <img src="docs/screenshots/assistant.png" alt="Ochobot — the assistant, available from every screen"><br>**Ochobot** · ask Ochobot from any screen | <img src="docs/screenshots/onboarding.png" alt="Multi-step onboarding"><br>**Onboarding** · multi-step setup |
 
 ## Status
 
@@ -93,11 +96,11 @@ OpenKuasa OS is in early development. Being upfront about where it stands:
 
 - **Built** — the complete product surface listed above: every screen,
   navigation, layout and interaction, running on sample data.
-- **Not wired up yet** — a live backend. Screens do not read from or write to a
-  database, the AI assistants and agents do not call a model, and integrations
-  such as ad platforms, WhatsApp, payroll filings and LHDN MyInvois submission
-  are not connected. Supabase is scaffolded for auth and data but nothing
-  depends on it yet.
+- **Wired up** — sign-in, workspaces and teams, the account area, CRM contacts,
+  the Api overview and the AI chat run against a real backend. Most other
+  module screens still run on sample data, and integrations such as ad
+  platforms, WhatsApp, payroll filings and LHDN MyInvois submission are not
+  connected.
 
 It is not ready to run a real business on. Contributions towards the backend
 are very welcome.
@@ -124,66 +127,58 @@ repository stays available under AGPL-3.0.
 
 ## Stack
 
-- **Next.js 16** (App Router, Turbopack) + **React 19**
-- **TypeScript**, **Tailwind CSS v4**
-- **shadcn/ui** (Radix primitives, `radix-nova` preset)
-- **Supabase** (`@supabase/ssr`) for data, auth, and tenancy
+- **Frontend** (`apps/web`): React 19 + **Vite**, React Router, TypeScript, Tailwind CSS v4, shadcn/ui (Radix)
+- **Backend** (`apps/api`): **Hono** on **Cloudflare Workers**, serving the API under `/api/*` and the built SPA as static assets
+- **Database**: plain **Postgres** (Supabase DB, Neon, PlanetScale Postgres or self-hosted) with **Drizzle ORM**, reached through Cloudflare Hyperdrive
+- **Auth**: **better-auth** (email + password, two-factor, anonymous demo guests)
+- **AI**: Vercel AI SDK + OpenRouter
 
 ## Getting Started
 
-Requires Node 20+ and [pnpm](https://pnpm.io).
+Requires Node 22+, [pnpm](https://pnpm.io) and Docker (for the local Postgres).
 
 ```bash
 git clone https://github.com/OpenKuasa/OpenKuasaOS.git
 cd OpenKuasaOS
 pnpm install
-pnpm dev
+cp apps/api/.dev.vars.example apps/api/.dev.vars   # then edit the secrets
+docker compose up -d --wait db                     # Postgres on localhost:54320
+DATABASE_URL=postgres://postgres:postgres@127.0.0.1:54320/openkuasa pnpm db:migrate
+pnpm build                                         # the Worker serves apps/web/dist
+pnpm dev:api
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:8787](http://localhost:8787). For hot reload of the UI, run
+`pnpm dev:web` too and use [http://localhost:5173](http://localhost:5173) (it proxies `/api`).
 
-## Environment variables
+## Configuration
 
-Create a `.env.local` file in the project root with your Supabase project's
-values (Supabase dashboard → Project Settings → API):
+Worker settings live in `apps/api/wrangler.jsonc` (Hyperdrive id, R2 bucket for
+avatars, hourly cron) and secrets in `apps/api/.dev.vars` locally or
+`wrangler secret put` in production. See `apps/api/.dev.vars.example`.
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
-```
+- `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `WEB_ORIGIN` — required.
+- `AI_KEY_SECRET` — encrypts workspace AI keys; `OPENROUTER_API_KEY` — optional shared key for free questions.
+- `RESEND_API_KEY`, `MAIL_FROM` — sends verification and reset emails. Without it, links are logged and email verification is not enforced.
+- `DEMO_ENABLED=1` (Worker) and `VITE_DEMO_ENABLED=1` (web build) — enable the demo workspace.
 
-Until these are set, the app runs normally but the Supabase session refresh is a
-no-op — see `src/lib/supabase/middleware.ts`.
+## Moving from the old Supabase version
 
-## Self-hosting setup
-
-Beyond the environment variables above (see `.env.example` for the full list:
-the Supabase URL and anon/publishable key; the OpenRouter key is for a later
-slice), a fresh Supabase project needs these Auth settings (Supabase dashboard →
-Authentication) for sign-in and signup to work:
-
-- **Enable Anonymous sign-ins** — powers the demo workspace and the tests.
-- **Turn OFF "Confirm email"** — signup then creates a session immediately and
-  lands on `/command`. With it on, signup stops at a "check your email" message
-  and the user must confirm and sign in.
-- **Leave hCaptcha OFF for now** — the auth forms don't yet pass a captcha
-  token, so *enabling* hCaptcha would break sign-in and signup. Wiring the
-  hCaptcha widget into the auth UI is a planned hardening step before it can be
-  turned on in production.
-
-## Supabase helpers
-
-- `src/lib/supabase/client.ts` — browser client (Client Components)
-- `src/lib/supabase/server.ts` — server client (Server Components, Route Handlers, Server Actions)
-- `src/lib/supabase/middleware.ts` + `src/proxy.ts` — session refresh
+`apps/api/db/import_supabase_users.sql` copies existing Supabase Auth users (ids and
+bcrypt hashes) into better-auth. Authenticator-app (TOTP) setups are not copied;
+those users re-enrol in Settings → Security.
 
 ## Scripts
 
 ```bash
-pnpm dev      # start the dev server
-pnpm build    # production build
-pnpm start    # run the production build
-pnpm lint     # eslint
+pnpm dev:web      # Vite dev server
+pnpm dev:api      # Worker (wrangler dev)
+pnpm build        # build the web app
+pnpm typecheck    # api + web
+pnpm test         # api + web (vitest)
+pnpm db:generate  # after editing apps/api/src/core/schema.ts
+pnpm db:migrate   # apply migrations to $DATABASE_URL
+pnpm deploy       # build web, deploy the Worker
 ```
 
 ## License

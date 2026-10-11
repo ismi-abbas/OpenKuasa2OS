@@ -1,0 +1,9 @@
+# Copy to .dev.vars (local) or set with `wrangler secret put` (production).
+BETTER_AUTH_SECRET=change-me-to-a-long-random-string
+BETTER_AUTH_URL=http://localhost:8787
+WEB_ORIGIN=http://localhost:8787
+AI_KEY_SECRET=change-me-another-long-random-string
+# OPENROUTER_API_KEY=
+# RESEND_API_KEY=
+# MAIL_FROM=OpenKuasa <no-reply@example.com>
+DEMO_ENABLED=1

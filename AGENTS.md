@@ -1,9 +1,15 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Stack
 
-# This is NOT the Next.js you know
+- **Frontend:** `apps/web` — React 19 + Vite SPA, React Router (library mode), Tailwind 4, shadcn/Radix. Organized by feature under `src/features/<name>/` (pages, components, lib and a `routes.tsx` table each): `auth` (login, MFA, invite, onboarding, viewer/permissions, `RequireViewer`), `account` (/account pages incl. team and AI key), `marketing` (landing, pricing, privacy), `app` (logged-in shell, `nav.ts`, product router), `command` (Ochobot chat), `modules` (the product screens: crm, finance, hire, people, reach; registry in `registry.ts`). Shared pieces stay in `src/components` (ui, brand, charts, screen, theme) and `src/lib` (`api.ts`, `auth-client.ts`, utils). `src/router.tsx` only composes the feature route tables.
+- **Backend:** `apps/api` — Hono on Cloudflare Workers (`wrangler.jsonc`). One Worker serves `/api/*` and the built SPA (`apps/web/dist`) as static assets. `src/index.ts` composes the app. `src/core/` is shared plumbing: `env.ts` (bindings/secrets), `db.ts`, `schema.ts`, `org.ts` (`requireUser`, `requireOrg`, `can`), `events.ts` (activity log + notifications), `types.ts` (`AppEnv`), `test-db.ts`. `src/modules/<name>/` holds one feature each with its `routes.ts` (+ `routes.test.ts`): `auth` (better-auth), `team`, `account`, `crm`, `ai` (chat, key crypto, provider, tools), `reach` (routes, overview, demo seed, types). Put new features in a new module and mount it in `index.ts`.
+- **Database:** plain Postgres via Cloudflare Hyperdrive and **Drizzle ORM** (`drizzle-orm/node-postgres`; Supabase DB, Neon, PlanetScale Postgres or self-hosted — standard Postgres only). `apps/api/src/core/schema.ts` is the schema source of truth (app tables + better-auth tables). Change it, run `pnpm db:generate` (writes SQL to `apps/api/drizzle/`, commit it), then `pnpm db:migrate` with `DATABASE_URL`. Hand-written SQL (triggers, seeds) goes in `drizzle-kit generate --custom`. Each request gets one `c.var.db` (middleware in `index.ts`); helpers take `Db | Tx` (`DbOrTx` from `db.ts`); use `db.transaction` for atomic work. Tests use in-memory Postgres (`src/core/test-db.ts`, pglite) with the real migrations.
+- **Auth:** better-auth (email/password with bcrypt, `twoFactor`, `anonymous` for demo guests). Own `orgs`/`org_members` tables, not the organization plugin. User ids are text. **No Supabase Auth or `@supabase/*`.**
+- **AI:** Vercel AI SDK + OpenRouter; workspace keys are AES-GCM encrypted with `AI_KEY_SECRET`.
+- **Tooling:** pnpm workspaces, vitest (`pnpm test`), `pnpm typecheck`, Node >= 22.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Rules
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+- There is no row-level security. Every query must be scoped by the session user / `c.var.org.orgId`, and writes must check `can(role, capability)`. Keep `apps/api/src/core/org.ts` and `apps/web/src/features/auth/permissions.ts` in sync.
+- The web app talks to the API only through `@/lib/api` (`api()`) and `@/lib/auth-client`. No server code in `apps/web`.
+- Secrets are Worker secrets (`apps/api/.dev.vars` locally, see `.dev.vars.example`); never commit them.
+- Import from old Supabase installs: `apps/api/db/import_supabase_users.sql`.
